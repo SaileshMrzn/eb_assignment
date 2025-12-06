@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
 import { join } from 'path';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -20,6 +21,8 @@ import { join } from 'path';
     MongooseModule.forRoot(
       process.env.MONGO_URI ?? 'mongodb://localhost:27017/',
     ),
+
+    AuthModule,
   ],
   controllers: [],
   providers: [],
