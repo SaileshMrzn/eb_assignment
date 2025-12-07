@@ -1,0 +1,50 @@
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { PostsService } from './posts.service';
+import { Post } from './posts.schema';
+
+@Resolver()
+export class PostsResolver {
+  constructor(private posts: PostsService) {}
+
+  @Query(() => [Post])
+  listAllPosts(
+    @Args('limit') limit: number = 20,
+    @Args('skip') skip: number = 0,
+  ) {
+    return this.posts.listAllPosts(limit, skip);
+  }
+
+  @Query(() => Post)
+  findPostById(@Args('id') id: string) {
+    return this.posts.findPostById(id);
+  }
+
+  // Mutations
+  @Mutation(() => Post)
+  createPost(
+    @Args('authorId') authorId: string,
+    @Args('title') title: string,
+    @Args('content') content: string,
+  ) {
+    return this.posts.createPost(authorId, title, content);
+  }
+
+  @Mutation(() => Post)
+  likePost(@Args('postId') postId: string, @Args('userId') userId: string) {
+    return this.posts.likePost(postId, userId);
+  }
+
+  @Mutation(() => Post)
+  unlikePost(@Args('postId') postId: string, @Args('userId') userId: string) {
+    return this.posts.unlikePost(postId, userId);
+  }
+
+  @Mutation(() => Post)
+  addComment(
+    @Args('postId') postId: string,
+    @Args('userId') userId: string,
+    @Args('content') content: string,
+  ) {
+    return this.posts.addComment(postId, userId, content);
+  }
+}

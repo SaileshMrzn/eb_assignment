@@ -1,0 +1,30 @@
+type Comment {
+  user: ID!
+  content: String!
+  createdAt: String!
+}
+
+type Post {
+  _id: ID!
+  title: String!
+  content: String!
+  author: ID!
+  likes: [ID!]!
+  comments: [Comment!]!
+  likesCount: Int!
+  commentsCount: Int!
+  createdAt: String!
+  updatedAt: String!
+}
+
+extend type Query {
+  listAllPosts(limit: Int = 20, skip: Int = 0): [Post!]!
+  findPostById(id: ID!): Post!
+}
+
+extend type Mutation {
+  createPost(authorId: ID!, title: String!, content: String!): Post!
+  likePost(postId: ID!, userId: ID!): Post!
+  unlikePost(postId: ID!, userId: ID!): Post!
+  addComment(postId: ID!, userId: ID!, content: String!): Post!
+}
