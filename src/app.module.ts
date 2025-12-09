@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { join } from 'path';
 import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
+import { UserModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PostsModule } from './posts/posts.module';
 
     AuthModule,
     PostsModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],

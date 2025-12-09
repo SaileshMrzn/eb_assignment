@@ -15,8 +15,8 @@ export class PostsResolver {
   }
 
   @Query(() => Post)
-  findPostById(@Args('id') id: string) {
-    return this.posts.findPostById(id);
+  getPostById(@Args('id') id: string) {
+    return this.posts.getPostById(id);
   }
 
   // Mutations

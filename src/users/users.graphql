@@ -1,0 +1,25 @@
+type User {
+  _id: ID!
+  email: String!
+
+  followers: [User!]!
+  following: [User!]!
+  followersCount: Int!
+  followingCount: Int!
+}
+
+type UserWithPosts {
+  user: User!
+  posts: [Post!]!
+}
+
+extend type Query {
+  listAllUsers(limit: Int = 20, skip: Int = 0): [User!]!
+  getUserById(id: ID!): User!
+  getUserWithPosts(id: ID!): UserWithPosts!
+}
+
+extend type Mutation {
+  followUser(fromId: ID!, targetId: ID!): User!
+  unfollowUser(fromId: ID!, targetId: ID!): User!
+}

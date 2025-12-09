@@ -19,7 +19,7 @@ type Post {
 
 extend type Query {
   listAllPosts(limit: Int = 20, skip: Int = 0): [Post!]!
-  findPostById(id: ID!): Post!
+  getPostById(id: ID!): Post!
 }
 
 extend type Mutation {

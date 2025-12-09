@@ -13,7 +13,7 @@ export class PostsService {
     authorId: string,
     title: string,
     content: string,
-  ): Promise<Post> {
+  ): Promise<PostDocument> {
     const post = await this.postModel.create({
       author: new Types.ObjectId(authorId),
       title,
@@ -32,7 +32,7 @@ export class PostsService {
       .lean();
   }
 
-  async findPostById(id: string): Promise<Post> {
+  async getPostById(id: string): Promise<Post> {
     const post = await this.postModel.findById(id).lean();
     if (!post) throw new NotFoundException('Post not found');
     return post;
