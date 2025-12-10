@@ -73,4 +73,20 @@ export class PostsService {
     await post.save();
     return post.toObject();
   }
+
+  async getPostByIds(ids: any[]): Promise<Post[]> {
+    const posts = await this.postModel
+      .find({
+        author: { $in: ids },
+      })
+      .sort({ createdAt: -1 })
+      .populate('author', '_id email')
+      .lean()
+      .exec();
+
+    if (!posts.length)
+      throw new Error('No any posts found for specified users');
+
+    return posts;
+  }
 }

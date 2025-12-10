@@ -1,0 +1,7 @@
+type Home {
+  posts: [Post!]!
+}
+
+extend type Query {
+  home: Home!
+}

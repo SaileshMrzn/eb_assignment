@@ -11,5 +11,6 @@ import { Post, PostSchema } from 'src/posts/posts.schema';
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
   ],
   providers: [UserResolver, UserService],
+  exports: [UserService],
 })
 export class UserModule {}
