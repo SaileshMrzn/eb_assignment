@@ -26,9 +26,4 @@ export class AuthResolver {
   async refreshToken(@Args('token') token: string) {
     return this.auth.refreshToken(token);
   }
-
-  @Query(() => String)
-  health() {
-    return 'ok';
-  }
 }

@@ -37,11 +37,11 @@ export class AuthService {
     });
 
     // generate tokens
-    const tokens = this._generateTokens(user._id.toString(), user.email);
+    const tokens = await this._generateTokens(user._id.toString(), user.email);
 
     return {
       user: {
-        id: user._id.toString(),
+        _id: user._id.toString(),
         email: user.email,
         username: user.username,
       },
@@ -62,11 +62,11 @@ export class AuthService {
     }
 
     // generate tokens
-    const tokens = this._generateTokens(user._id.toString(), user.email);
+    const tokens = await this._generateTokens(user._id.toString(), user.email);
 
     return {
       user: {
-        id: user._id.toString(),
+        _id: user._id.toString(),
         email: user.email,
         username: user.username,
       },

@@ -1,11 +1,12 @@
 type User {
   _id: ID!
   email: String!
+  username: String!
 
-  followers: [User!]!
-  following: [User!]!
-  followersCount: Int!
-  followingCount: Int!
+  followers: [User!]
+  following: [User!]
+  followersCount: Int
+  followingCount: Int
 }
 
 type UserWithPosts {
