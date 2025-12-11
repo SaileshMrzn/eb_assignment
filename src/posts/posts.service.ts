@@ -1,7 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostDocument } from './posts.schema';
-import { Model, ObjectId, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
+import { join } from 'path';
+import { createWriteStream, existsSync, mkdirSync } from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class PostsService {
@@ -13,11 +20,45 @@ export class PostsService {
     authorId: string,
     title: string,
     content: string,
+    file: any,
   ): Promise<PostDocument> {
+    let imageUrl: string | undefined;
+
+    if (file) {
+      const { createReadStream, filename, mimetype } = await file;
+
+      if (!mimetype.startsWith('image/')) {
+        throw new BadRequestException('Only image uploads are allowed.');
+      }
+
+      const uploadDir = join(process.cwd(), 'uploads');
+      if (!existsSync(uploadDir)) {
+        mkdirSync(uploadDir, { recursive: true });
+      }
+
+      const ext = filename.split('.').pop();
+      const newFileName = `${Date.now()}-${uuidv4()}.${ext || 'jpg'}`;
+      const absolutePath = join(uploadDir, newFileName);
+      imageUrl = `/uploads/${newFileName}`;
+
+      await new Promise<void>((resolve, reject) => {
+        const stream = createReadStream();
+        const out = createWriteStream(absolutePath);
+        stream
+          .pipe(out)
+          .on('finish', () => resolve())
+          .on('error', (err) => {
+            console.error('File write error', err);
+            reject(new Error('File upload failed.'));
+          });
+      });
+    }
+
     const post = await this.postModel.create({
       author: new Types.ObjectId(authorId),
       title,
       content,
+      imageUrl,
     });
 
     return post;

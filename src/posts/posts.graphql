@@ -1,3 +1,5 @@
+scalar Upload
+
 type Comment {
   user: ID!
   content: String!
@@ -15,6 +17,7 @@ type Post {
   commentsCount: Int!
   createdAt: String!
   updatedAt: String!
+  imageUrl: String
 }
 
 extend type Query {
@@ -23,7 +26,12 @@ extend type Query {
 }
 
 extend type Mutation {
-  createPost(authorId: ID!, title: String!, content: String!): Post!
+  createPost(
+    authorId: ID!
+    title: String!
+    content: String!
+    file: Upload
+  ): Post!
   likePost(postId: ID!, userId: ID!): Post!
   unlikePost(postId: ID!, userId: ID!): Post!
   addComment(postId: ID!, userId: ID!, content: String!): Post!

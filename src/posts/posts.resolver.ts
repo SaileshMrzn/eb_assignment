@@ -21,12 +21,13 @@ export class PostsResolver {
 
   // Mutations
   @Mutation(() => Post)
-  createPost(
+  async createPost(
     @Args('authorId') authorId: string,
     @Args('title') title: string,
     @Args('content') content: string,
+    @Args('file') file?: any,
   ) {
-    return this.posts.createPost(authorId, title, content);
+    return this.posts.createPost(authorId, title, content, file);
   }
 
   @Mutation(() => Post)

@@ -39,6 +39,8 @@ export class Post {
 
   @Prop({ type: Number, default: 0, min: 0 })
   commentsCount: number;
+
+  @Prop({ default: null, type: String }) imageUrl: string;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
