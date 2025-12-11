@@ -29,6 +29,9 @@ export class User {
   @Prop({ default: 0 })
   followingCount: number;
 
+  @Prop({ default: 0 })
+  tokenVersion: number;
+
   @Prop({ default: Date.now })
   createdAt: Date;
 }

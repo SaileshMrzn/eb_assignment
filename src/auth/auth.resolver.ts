@@ -1,11 +1,15 @@
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
+import { UseGuards } from '@nestjs/common';
+import { GqlAuthGuard } from './gql-auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import type { JwtPayload } from './jwt-payload.type';
 
 @Resolver()
 export class AuthResolver {
   constructor(private auth: AuthService) {}
 
-  @Mutation(() => String)
+  @Mutation()
   async register(
     @Args('email') email: string,
     @Args('password') password: string,
@@ -14,7 +18,7 @@ export class AuthResolver {
     return this.auth.register(email, password, username);
   }
 
-  @Mutation(() => String)
+  @Mutation()
   async login(
     @Args('email') email: string,
     @Args('password') password: string,
@@ -22,8 +26,14 @@ export class AuthResolver {
     return this.auth.login(email, password);
   }
 
-  @Mutation(() => String)
+  @Mutation()
   async refreshToken(@Args('token') token: string) {
     return this.auth.refreshToken(token);
+  }
+
+  @Mutation()
+  @UseGuards(GqlAuthGuard)
+  async logout(@CurrentUser() user: JwtPayload) {
+    return this.auth.logout(user.sub);
   }
 }

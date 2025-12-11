@@ -14,5 +14,6 @@ import { JwtStrategy } from './jwt.strategy';
     JwtModule.register({ secret: process.env.JWT_ACCESS_SECRET }),
   ],
   providers: [AuthService, AuthResolver, JwtStrategy],
+  exports: [JwtStrategy, PassportModule],
 })
 export class AuthModule {}

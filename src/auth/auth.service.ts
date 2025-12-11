@@ -37,7 +37,7 @@ export class AuthService {
     });
 
     // generate tokens
-    const tokens = await this._generateTokens(user._id.toString(), user.email);
+    const tokens = await this._generateTokens(user);
 
     return {
       user: {
@@ -62,7 +62,7 @@ export class AuthService {
     }
 
     // generate tokens
-    const tokens = await this._generateTokens(user._id.toString(), user.email);
+    const tokens = await this._generateTokens(user);
 
     return {
       user: {
@@ -94,30 +94,40 @@ export class AuthService {
       }
 
       // generate new access and refresh tokens
-      return this._generateTokens(user._id.toString(), user.email);
+      return this._generateTokens(user);
     } catch (error) {
       throw new UnauthorizedException('invalid refresh token');
     }
   }
 
-  private async _generateTokens(userId: string, email: string) {
+  async logout(userId: string) {
+    await this.userModel.findByIdAndUpdate(userId, {
+      $inc: { tokenVersion: 1 },
+    });
+    return true;
+  }
+
+  private async _generateTokens(user: User & { _id: any }) {
+    const userId = user._id.toString();
+    const email = user.email;
+    const tokenVersion = user.tokenVersion || 0;
     // generate access token
     const accessToken = this.jwt.sign(
-      { email },
+      { email, tokenVersion },
       {
         secret: process.env.JWT_ACCESS_SECRET,
         expiresIn: '30m',
-        subject: userId.toString(),
+        subject: userId,
       },
     );
 
     // generate refresh token
     const refreshToken = this.jwt.sign(
-      { email },
+      { email, tokenVersion },
       {
         secret: process.env.JWT_REFRESH_SECRET,
         expiresIn: '7d',
-        subject: userId.toString(),
+        subject: userId,
       },
     );
 

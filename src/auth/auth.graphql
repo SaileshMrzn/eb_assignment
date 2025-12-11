@@ -43,6 +43,10 @@ type Mutation {
   Refreshes the access token.
   """
   refreshToken(token: String!): TokenResponse!
+  """
+  Logs out a user.
+  """
+  logout: Boolean!
 }
 
 type Query
