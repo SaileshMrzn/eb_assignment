@@ -1,26 +1,73 @@
+"""
+Represents a user.
+"""
 type User {
+  """
+  The unique identifier of the user.
+  """
   _id: ID!
+  """
+  The email of the user.
+  """
   email: String!
+  """
+  The username of the user.
+  """
   username: String!
-
+  """
+  A list of users who follow this user.
+  """
   followers: [User!]
+  """
+  A list of users this user is following.
+  """
   following: [User!]
+  """
+  The number of followers of the user.
+  """
   followersCount: Int
+  """
+  The number of users the user is following.
+  """
   followingCount: Int
 }
 
+"""
+Represents a user with their posts.
+"""
 type UserWithPosts {
+  """
+  The user.
+  """
   user: User!
+  """
+  A list of posts by the user.
+  """
   posts: [Post!]!
 }
 
 extend type Query {
+  """
+  Retrieves a list of all users.
+  """
   listAllUsers(limit: Int = 20, skip: Int = 0): [User!]!
+  """
+  Retrieves a user by their ID.
+  """
   getUserById(id: ID!): User!
+  """
+  Retrieves a user with their posts.
+  """
   getUserWithPosts(id: ID!): UserWithPosts!
 }
 
 extend type Mutation {
+  """
+  Follows a user.
+  """
   followUser(fromId: ID!, targetId: ID!): User!
+  """
+  Unfollows a user.
+  """
   unfollowUser(fromId: ID!, targetId: ID!): User!
 }

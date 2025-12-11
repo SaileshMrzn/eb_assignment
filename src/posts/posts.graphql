@@ -1,38 +1,107 @@
+"""
+Represents a file upload.
+"""
 scalar Upload
 
+"""
+Represents a comment on a post.
+"""
 type Comment {
+  """
+  The user who made the comment.
+  """
   user: ID!
+  """
+  The content of the comment.
+  """
   content: String!
+  """
+  The creation date of the comment.
+  """
   createdAt: String!
 }
 
+"""
+Represents a post.
+"""
 type Post {
+  """
+  The unique identifier of the post.
+  """
   _id: ID!
+  """
+  The title of the post.
+  """
   title: String!
+  """
+  The content of the post.
+  """
   content: String!
+  """
+  The author of the post.
+  """
   author: User!
+  """
+  A list of user IDs who liked the post.
+  """
   likes: [ID!]!
+  """
+  A list of comments on the post.
+  """
   comments: [Comment!]!
+  """
+  The number of likes on the post.
+  """
   likesCount: Int!
+  """
+  The number of comments on the post.
+  """
   commentsCount: Int!
+  """
+  The creation date of the post.
+  """
   createdAt: String!
+  """
+  The last update date of the post.
+  """
   updatedAt: String!
+  """
+  The URL of the image associated with the post.
+  """
   imageUrl: String
 }
 
 extend type Query {
+  """
+  Retrieves a list of all posts.
+  """
   listAllPosts(limit: Int = 20, skip: Int = 0): [Post!]!
+  """
+  Retrieves a post by its ID.
+  """
   getPostById(id: ID!): Post!
 }
 
 extend type Mutation {
+  """
+  Creates a new post.
+  """
   createPost(
     authorId: ID!
     title: String!
     content: String!
     file: Upload
   ): Post!
+  """
+  Likes a post.
+  """
   likePost(postId: ID!, userId: ID!): Post!
+  """
+  Unlikes a post.
+  """
   unlikePost(postId: ID!, userId: ID!): Post!
+  """
+  Adds a comment to a post.
+  """
   addComment(postId: ID!, userId: ID!, content: String!): Post!
 }

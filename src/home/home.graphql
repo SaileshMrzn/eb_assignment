@@ -1,8 +1,20 @@
+"""
+Represents the home feed.
+"""
 type Home {
+  """
+  A list of posts in the home feed.
+  """
   posts: [Post!]!
+  """
+  The cursor for the next page of posts.
+  """
   nextCursor: ID
 }
 
 extend type Query {
+  """
+  Retrieves the home feed.
+  """
   home: Home!
 }

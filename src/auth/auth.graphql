@@ -1,17 +1,47 @@
+"""
+Represents the response when a new token is generated.
+"""
 type TokenResponse {
+  """
+  The new access token.
+  """
   accessToken: String!
+  """
+  The new refresh token.
+  """
   refreshToken: String!
 }
 
+"""
+Represents the response for authentication requests.
+"""
 type AuthResponse {
+  """
+  The authenticated user.
+  """
   user: User!
+  """
+  The access token for the authenticated user.
+  """
   accessToken: String!
+  """
+  The refresh token for the authenticated user.
+  """
   refreshToken: String!
 }
 
 type Mutation {
+  """
+  Registers a new user.
+  """
   register(email: String!, password: String!, username: String!): AuthResponse!
+  """
+  Logs in a user.
+  """
   login(email: String!, password: String!): AuthResponse!
+  """
+  Refreshes the access token.
+  """
   refreshToken(token: String!): TokenResponse!
 }
 
