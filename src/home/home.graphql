@@ -1,5 +1,6 @@
 type Home {
   posts: [Post!]!
+  nextCursor: ID
 }
 
 extend type Query {

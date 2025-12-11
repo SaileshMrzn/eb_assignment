@@ -1,4 +1,4 @@
-import { Context, Query, Resolver } from '@nestjs/graphql';
+import { Args, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { Post } from 'src/posts/posts.schema';
 import { PostsService } from 'src/posts/posts.service';
@@ -16,7 +16,11 @@ export class HomeResolver {
   ) {}
 
   @Query(() => [Post])
-  async home(@CurrentUser() user: JwtPayload) {
+  async home(
+    @CurrentUser() user: JwtPayload,
+    @Args('limit') limit: number = 10,
+    @Args('cursor') cursor?: string,
+  ) {
     const me = await this.users.getUserById(user.sub);
 
     const followingIds = me.following;
@@ -24,8 +28,14 @@ export class HomeResolver {
     if (!followingIds.length)
       throw new Error('You do not follow any users yet');
 
-    const posts = await this.posts.getPostByIds(followingIds);
+    const posts = await this.posts.getPostByIds(followingIds, limit, cursor);
 
-    return { posts };
+    const nextCursor =
+      posts.length > 0 ? posts[posts.length - 1]._id.toString() : null;
+
+    return {
+      posts,
+      nextCursor,
+    };
   }
 }

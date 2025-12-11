@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostDocument } from './posts.schema';
-import { Model, Types } from 'mongoose';
+import { Model, ObjectId, Types } from 'mongoose';
 
 @Injectable()
 export class PostsService {
@@ -74,12 +74,17 @@ export class PostsService {
     return post.toObject();
   }
 
-  async getPostByIds(ids: any[]): Promise<Post[]> {
+  async getPostByIds(ids: any[], limit: number = 10, cursor?: string) {
+    const query: any = { author: { $in: ids } };
+
+    if (cursor) {
+      query._id = { $lt: cursor };
+    }
+
     const posts = await this.postModel
-      .find({
-        author: { $in: ids },
-      })
+      .find(query)
       .sort({ createdAt: -1 })
+      .limit(limit)
       .populate('author', '_id email')
       .lean()
       .exec();
