@@ -20,27 +20,32 @@ export class PostsService {
     authorId: string,
     title: string,
     content: string,
-    file: any,
+    file?: any,
   ): Promise<PostDocument> {
     let imageUrl: string | undefined;
 
+    // handle file upload
     if (file) {
       const { createReadStream, filename, mimetype } = await file;
 
+      // validate if image
       if (!mimetype.startsWith('image/')) {
-        throw new BadRequestException('Only image uploads are allowed.');
+        throw new BadRequestException('only image uploads are allowed');
       }
 
+      // ensure upload directory exists
       const uploadDir = join(process.cwd(), 'uploads');
       if (!existsSync(uploadDir)) {
         mkdirSync(uploadDir, { recursive: true });
       }
 
-      const ext = filename.split('.').pop();
-      const newFileName = `${Date.now()}-${uuidv4()}.${ext || 'jpg'}`;
+      // generate unique file name
+      const ext = filename.split('.').pop() || 'jpg';
+      const newFileName = `${Date.now()}-${uuidv4()}.${ext}`;
       const absolutePath = join(uploadDir, newFileName);
       imageUrl = `/uploads/${newFileName}`;
 
+      // save the file to the filesystem
       await new Promise<void>((resolve, reject) => {
         const stream = createReadStream();
         const out = createWriteStream(absolutePath);
@@ -48,8 +53,8 @@ export class PostsService {
           .pipe(out)
           .on('finish', () => resolve())
           .on('error', (err) => {
-            console.error('File write error', err);
-            reject(new Error('File upload failed.'));
+            console.error('file write error', err);
+            reject(new Error('file upload failed'));
           });
       });
     }
@@ -65,12 +70,17 @@ export class PostsService {
   }
 
   async listAllPosts(limit = 20, skip = 0): Promise<Post[]> {
-    return this.postModel
+    const queryLimit = Math.min(limit, 100); // max 100 posts at once
+    const querySkip = Math.max(skip, 0); // ensure non negative skip value
+
+    const posts = await this.postModel
       .find({})
       .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
+      .skip(querySkip)
+      .limit(queryLimit)
       .lean();
+
+    return posts;
   }
 
   async getPostById(id: string): Promise<Post> {
@@ -86,19 +96,26 @@ export class PostsService {
 
   async likePost(postId: string, userId: string): Promise<Post> {
     const post = await this.postModel.findById(postId);
+
     if (!post) throw new NotFoundException('Post not found');
 
     (post as any).addLike(new Types.ObjectId(userId));
+
     await post.save();
+
+    // return the post as plain object
     return post.toObject();
   }
 
   async unlikePost(postId: string, userId: string): Promise<Post> {
     const post = await this.postModel.findById(postId);
+
     if (!post) throw new NotFoundException('Post not found');
 
     (post as any).removeLike(new Types.ObjectId(userId));
+
     await post.save();
+
     return post.toObject();
   }
 
@@ -108,16 +125,20 @@ export class PostsService {
     content: string,
   ): Promise<Post> {
     const post = await this.postModel.findById(postId);
+
     if (!post) throw new NotFoundException('Post not found');
 
     (post as any).addComment(new Types.ObjectId(userId), content);
+
     await post.save();
+
     return post.toObject();
   }
 
   async getPostByIds(ids: any[], limit: number = 10, cursor?: string) {
     const query: any = { author: { $in: ids } };
 
+    // cursor for pagination (points to last fetched post)
     if (cursor) {
       query._id = { $lt: cursor };
     }

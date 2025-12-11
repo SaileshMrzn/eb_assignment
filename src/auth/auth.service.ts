@@ -17,57 +17,91 @@ export class AuthService {
   ) {}
 
   async register(email: string, password: string, username: string) {
-    const hashed = await bcrypt.hash(password, 10);
+    const existingUser = await this.userModel
+      .findOne({
+        $or: [{ email }, { username }],
+      })
+      .lean();
 
-    const userExists = await this.userModel.findOne({
-      $or: [{ email }, { username }],
-    });
-
-    if (userExists) {
-      throw new ConflictException(
-        'User with this email or username already exists.',
-      );
+    if (existingUser) {
+      throw new ConflictException('Email or username is already taken.');
     }
+
+    // hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await this.userModel.create({
       email,
-      password: hashed,
       username,
+      password: hashedPassword,
     });
 
-    return this._generateTokens(user._id.toString(), user.email);
+    // generate tokens
+    const tokens = this._generateTokens(user._id.toString(), user.email);
+
+    return {
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        username: user.username,
+      },
+      ...tokens,
+    };
   }
 
   async login(email: string, password: string) {
-    const user = await this.userModel.findOne({ email });
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    const user = await this.userModel.findOne({ email }).lean();
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) throw new UnauthorizedException('Invalid credentials');
+    // compare password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
-    return this._generateTokens(user._id.toString(), user.email);
+    // generate tokens
+    const tokens = this._generateTokens(user._id.toString(), user.email);
+
+    return {
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        username: user.username,
+      },
+      ...tokens,
+    };
   }
 
   async refreshToken(refreshToken: string) {
     try {
+      // verify refresh token
       const payload = this.jwt.verify(refreshToken, {
         secret: process.env.JWT_REFRESH_SECRET,
       });
 
-      const user = await this.userModel.findById(payload.sub);
-      if (!user || !user.refreshToken)
-        throw new UnauthorizedException('Access denied');
+      // verify correct user
+      const user = await this.userModel.findById(payload.sub).lean();
+      if (!user || !user.refreshToken) {
+        throw new UnauthorizedException('access denied');
+      }
 
-      const matches = await bcrypt.compare(refreshToken, user.refreshToken);
-      if (!matches) throw new UnauthorizedException('Invalid refresh token');
+      // compare provided refresh token with hashed token in db
+      const isMatch = await bcrypt.compare(refreshToken, user.refreshToken);
+      if (!isMatch) {
+        throw new UnauthorizedException('invalid refresh token');
+      }
 
+      // generate new access and refresh tokens
       return this._generateTokens(user._id.toString(), user.email);
     } catch (error) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('invalid refresh token');
     }
   }
 
   private async _generateTokens(userId: string, email: string) {
+    // generate access token
     const accessToken = this.jwt.sign(
       { email },
       {
@@ -77,10 +111,9 @@ export class AuthService {
       },
     );
 
+    // generate refresh token
     const refreshToken = this.jwt.sign(
-      {
-        email,
-      },
+      { email },
       {
         secret: process.env.JWT_REFRESH_SECRET,
         expiresIn: '7d',
@@ -88,10 +121,10 @@ export class AuthService {
       },
     );
 
-    //hashed refresh token
-    const hashed = await bcrypt.hash(refreshToken, 10);
+    // hash the refresh token before saving in database
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.userModel.findByIdAndUpdate(userId, {
-      refreshToken: hashed,
+      refreshToken: hashedRefreshToken,
     });
 
     return { accessToken, refreshToken };
