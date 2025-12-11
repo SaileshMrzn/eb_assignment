@@ -126,7 +126,7 @@ export class PostsService {
       .find(query)
       .sort({ createdAt: -1 })
       .limit(limit)
-      .populate('author', '_id email')
+      .populate('author', '_id email username')
       .lean()
       .exec();
 

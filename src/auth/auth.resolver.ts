@@ -9,8 +9,9 @@ export class AuthResolver {
   async register(
     @Args('email') email: string,
     @Args('password') password: string,
+    @Args('username') username: string,
   ) {
-    return this.auth.register(email, password);
+    return this.auth.register(email, password, username);
   }
 
   @Mutation(() => String)

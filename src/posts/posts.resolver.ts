@@ -1,7 +1,10 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PostsService } from './posts.service';
 import { Post } from './posts.schema';
+import { UseGuards } from '@nestjs/common';
+import { GqlAuthGuard } from 'src/auth/gql-auth.guard';
 
+@UseGuards(GqlAuthGuard)
 @Resolver()
 export class PostsResolver {
   constructor(private posts: PostsService) {}
