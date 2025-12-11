@@ -57,7 +57,7 @@ export class AuthService {
       { email },
       {
         secret: process.env.JWT_ACCESS_SECRET,
-        expiresIn: '15m',
+        expiresIn: '30m',
         subject: userId.toString(),
       },
     );
