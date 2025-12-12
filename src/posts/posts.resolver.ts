@@ -28,7 +28,7 @@ export class PostsResolver {
     @Args('authorId') authorId: string,
     @Args('title') title: string,
     @Args('content') content: string,
-    @Args('file') file?: any,
+    @Args('file', { description: 'experimental' }) file?: any,
   ) {
     return this.posts.createPost(authorId, title, content, file);
   }
